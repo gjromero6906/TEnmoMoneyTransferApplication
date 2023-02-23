@@ -1,9 +1,11 @@
 package com.techelevator.tenmo.services;
 
 
+import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.UserCredentials;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.Scanner;
 
 public class ConsoleService {
@@ -86,6 +88,27 @@ public class ConsoleService {
 
     public void printErrorMessage() {
         System.out.println("An error occurred. Check the log for details.");
+    }
+    public void printGetBalance(Account acct) {
+        NumberFormat nf = NumberFormat.getCurrencyInstance();
+        System.out.println("Your current account balance is: " + nf.format(acct.getBalance()));
+    }
+
+    public String printPrettyMoney(Double money) {
+        NumberFormat nf = NumberFormat.getCurrencyInstance();
+        return nf.format(money);
+    }
+
+    public void transactionApproved(Double amount){
+        System.out.println("\n--------------------");
+        System.out.println("Transaction of [" + printPrettyMoney(amount)+"] approved");
+        System.out.println("--------------------");
+    }
+
+    public void transactionProcessed(Double amount){
+        System.out.println("\n--------------------");
+        System.out.println("Transaction of [" + printPrettyMoney(amount)+"] processed");
+        System.out.println("--------------------");
     }
 
 }

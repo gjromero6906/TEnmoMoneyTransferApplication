@@ -95,6 +95,10 @@ public class JdbcUserDao implements UserDao {
 
         return true;
     }
+    @Override
+    public User findById(Long id) {
+        return null;
+    }
 
     private User mapRowToUser(SqlRowSet rs) {
         User user = new User();
