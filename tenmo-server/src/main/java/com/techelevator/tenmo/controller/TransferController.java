@@ -1,12 +1,7 @@
 package com.techelevator.tenmo.controller;
 
 import com.techelevator.tenmo.dao.TransferDao;
-import com.techelevator.tenmo.dao.TransferDetail;
-import com.techelevator.tenmo.dao.TransferStatusDao;
-import com.techelevator.tenmo.dao.TransferTypeDao;
 import com.techelevator.tenmo.model.Transfer;
-import com.techelevator.tenmo.model.TransferStatus;
-import com.techelevator.tenmo.model.TransferType;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -17,15 +12,11 @@ import javax.validation.Valid;
 @PreAuthorize("isAuthenticated()")
 public class  TransferController {
 
-    private TransferStatusDao transferStatusDao;
     private TransferDao transferDao;
-    private TransferTypeDao transferTypeDao;
 
 
-    public TransferController(TransferStatusDao transferStatusDAO, TransferDao transferDao, TransferTypeDao transferTypeDAO) {
-        this.transferStatusDao = transferStatusDAO;
+    public TransferController(TransferDao transferDao) {
         this.transferDao = transferDao;
-        this.transferTypeDao = transferTypeDAO;
     }
 
 
@@ -67,34 +58,34 @@ public class  TransferController {
     //TRANSFER DETAILS
     @PreAuthorize("hasRole('USER')")
     @GetMapping(path = "transferdetails/{id}")
-    public TransferDetail[] listTransferDetails(@PathVariable Long id) {
+    public Transfer[] listTransferDetails(@PathVariable Long id) {
         return transferDao.getTransferDetails(id);
     }
 
     //TRANSFER STATUS'
     @PreAuthorize("permitAll")
     @GetMapping(path = "transferstatus/")
-    public TransferStatus[] getAllTransferStatus() {
-        return transferStatusDao.getAllTransferStatus();
+    public Transfer[] getAllTransferStatus() {
+        return transferDao.getAllTransferStatus();
     }
 
     @PreAuthorize("permitAll")
     @GetMapping(path = "transferstatus/{id}")
-    public TransferStatus getTansferStatusWithId(@PathVariable Long id) {
-        return transferStatusDao.getTransferStatus(id);
+    public Transfer getTansferStatusWithId(@PathVariable Long id) {
+        return transferDao.getTransferStatus(id);
     }
 
     //TRANSFER TYPES
     @PreAuthorize("permitAll")
     @GetMapping(path = "transfertype/")
-    public TransferType[] getAllTransferType() {
-        return transferTypeDao.getAllTranferTypes();
+    public Transfer[] getAllTransferType() {
+        return transferDao.getAllTransferTypes();
     }
 
     @PreAuthorize("permitAll")
     @GetMapping(path = "transfertype/{id}")
-    public TransferType getTansferTypeWithId(@PathVariable Long id) {
-        return transferTypeDao.getTransfereTypeById(id);
+    public Transfer getTransferTypeWithId(@PathVariable Long id) {
+        return transferDao.getTransferTypeById(id);
     }
 
 }

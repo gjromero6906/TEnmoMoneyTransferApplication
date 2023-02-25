@@ -2,8 +2,6 @@ package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
-import com.techelevator.tenmo.model.TransferStatus;
-import com.techelevator.tenmo.model.TransferType;
 import com.techelevator.util.BasicLogger;
 import org.springframework.http.*;
 import org.springframework.web.client.ResourceAccessException;
@@ -114,14 +112,14 @@ public class TransferService {
         }
     }
 
-    public TransferStatus[] listTransferStatus() {
-        TransferStatus[] transferStatuses = null;
+    public Transfer[] listTransferStatus() {
+        Transfer[] transferStatuses = null;
         try {
-            ResponseEntity<TransferStatus[]> response =
+            ResponseEntity<Transfer[]> response =
                     restTemplate.exchange(API_BASE_URL + "transfers/",
                             HttpMethod.GET,
                             makeAuthEntity(),
-                            TransferStatus[].class);
+                            Transfer[].class);
             transferStatuses = response.getBody();
         } catch (RestClientResponseException e) {
             BasicLogger.log(e.getRawStatusCode() + " : " + e.getStatusText());
@@ -131,14 +129,14 @@ public class TransferService {
         return transferStatuses;
     }
 
-    public TransferType[] listTransferTypes() {
-        TransferType[] transferTypes = null;
+    public Transfer[] listTransferTypes() {
+        Transfer[] transferTypes = null;
         try {
-            ResponseEntity<TransferType[]> response =
+            ResponseEntity<Transfer[]> response =
                     restTemplate.exchange(API_BASE_URL + "transfers/",
                             HttpMethod.GET,
                             makeAuthEntity(),
-                            TransferType[].class);
+                            Transfer[].class);
             transferTypes = response.getBody();
         } catch (RestClientResponseException e) {
             BasicLogger.log(e.getRawStatusCode() + " : " + e.getStatusText());
@@ -148,12 +146,12 @@ public class TransferService {
         return transferTypes;
     }
 
-    public TransferType getTransferTypeById(Long id) {
-        TransferType transferType = null;
+    public Transfer getTransferTypeById(Long id) {
+        Transfer transferType = null;
         try {
-            ResponseEntity<TransferType> response =
+            ResponseEntity<Transfer> response =
                     restTemplate.exchange(API_BASE_URL + "transfertype/" + id, HttpMethod.GET,
-                            makeAuthEntity(), TransferType.class);
+                            makeAuthEntity(), Transfer.class);
             transferType = response.getBody();
 
         } catch (RestClientResponseException e) {
@@ -164,12 +162,12 @@ public class TransferService {
         return transferType;
     }
 
-    public TransferStatus getTransferStatusById(Long id) {
-        TransferStatus transferStatus = null;
+    public Transfer getTransferStatusById(Long id) {
+        Transfer transferStatus = null;
         try {
-            ResponseEntity<TransferStatus> response =
+            ResponseEntity<Transfer> response =
                     restTemplate.exchange(API_BASE_URL + "transferstatus/" + id, HttpMethod.GET,
-                            makeAuthEntity(), TransferStatus.class);
+                            makeAuthEntity(), Transfer.class);
             transferStatus = response.getBody();
 
         } catch (RestClientResponseException e) {

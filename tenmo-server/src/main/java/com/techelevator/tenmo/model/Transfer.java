@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.model;
 
 public class Transfer {
+    //Regular transfer
     private Long transferId;
     private Long transferTypeId;
     private String transferTypeDesc;

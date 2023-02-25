@@ -2,6 +2,7 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Transfer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
@@ -18,7 +19,7 @@ public class JdbcTransferDao implements TransferDao{
     public JdbcTransferDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-
+    //Regular Transfer
     @Override
     public Transfer[] getTransfersByUserId(Long id) {
         List<Transfer> transfers = new ArrayList<>();
@@ -37,8 +38,8 @@ public class JdbcTransferDao implements TransferDao{
     }
 
     @Override
-    public TransferDetail[] getTransferDetails(Long id){
-        List<TransferDetail> transfers = new ArrayList<>();
+    public Transfer[] getTransferDetails(Long id){
+        List<Transfer> transfers = new ArrayList<>();
 
         String SQL = "SELECT  t.transfer_id, tu.username as account_from , tu2.username as account_to, " +
                 "tt.transfer_type_desc as transfer_type, ts.transfer_status_desc as transfer_status, t.amount as amount FROM transfer t " +
@@ -53,10 +54,10 @@ public class JdbcTransferDao implements TransferDao{
 
         SqlRowSet results = jdbcTemplate.queryForRowSet(SQL, id, id);
         while(results.next()){
-            TransferDetail transfer = mapToRowTransferDetails(results);
+            Transfer transfer = mapToRowTransferDetails(results);
             transfers.add(transfer);
         }
-        return transfers.toArray(new TransferDetail[0]);
+        return transfers.toArray(new Transfer[0]);
     }
 
     @Override
@@ -115,12 +116,69 @@ public class JdbcTransferDao implements TransferDao{
         }
         return transfers.toArray(new Transfer[0]);
     }
+    //Status Transfer
+    @Override
+    public Transfer[] getAllTransferStatus(){
+        List<Transfer> t = new ArrayList<>();
+        String SQL = "SELECT * from transfer_status;";
+        try {
+            SqlRowSet results = jdbcTemplate.queryForRowSet(SQL);
+            while (results.next()) {
+                Transfer transferStatus = mapRowToTransferStatus(results);
+                t.add(transferStatus);
+            }
+        } catch(DataAccessException e) {
+            System.out.print("Error accessing data");
+        }
+        return t.toArray(new Transfer[0]);
 
-    private TransferDetail mapToRowTransferDetails(SqlRowSet results){
-        TransferDetail transferDetail = new TransferDetail();
+    }
+
+    @Override
+    public Transfer getTransferStatus(Long id){
+        Transfer transferStatus = null;
+        String SQL = "SELECT * FROM transfer_status WHERE transfer_status_id =  ?;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(SQL, id);
+        while(results.next()){
+            transferStatus = mapRowToTransferStatus(results);
+        }
+        return transferStatus;
+    }
+    //transfer type
+    @Override
+    public Transfer[] getAllTransferTypes(){
+        List<Transfer> t = new ArrayList<>();
+        String SQL = "SELECT * FROM transfer_type;";
+        try {
+            SqlRowSet results = jdbcTemplate.queryForRowSet(SQL);
+            while (results.next()) {
+                Transfer transferType = mapRowToTransferType(results);
+                t.add(transferType);
+            }
+        } catch(DataAccessException e) {
+            System.out.print("Error accessing data");
+        }
+        return t.toArray(new Transfer[0]);
+
+    }
+
+    @Override
+    public Transfer getTransferTypeById(Long id) {
+        Transfer transferType = null;
+        String SQL = "SELECT * FROM transfer_type WHERE transfer_type_id =  ?;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(SQL, id);
+        while(results.next()){
+            transferType = mapRowToTransferType(results);
+        }
+        return transferType;
+    }
+
+    //Regular transfer
+    private Transfer mapToRowTransferDetails(SqlRowSet results){
+        Transfer transferDetail = new Transfer();
         transferDetail.setTransferId(results.getLong("transfer_id"));
-        transferDetail.setUsernameFrom(results.getString("account_from"));
-        transferDetail.setUsernameTo(results.getString("account_to"));
+        transferDetail.setAccountFrom(results.getLong("account_from"));
+        transferDetail.setAccountTo(results.getLong("account_to"));
         transferDetail.setTransferTypeDesc(results.getString("transfer_type"));
         transferDetail.setTransferStatusDesc(results.getString("transfer_status"));
         transferDetail.setAmount(results.getDouble("amount"));
@@ -139,5 +197,18 @@ public class JdbcTransferDao implements TransferDao{
         transfer.setAmount(results.getDouble("amount"));
         return transfer;
     }
-
+    //Status transfer
+    private Transfer mapRowToTransferStatus(SqlRowSet results){
+        Transfer transferStatus = new Transfer();
+        transferStatus.setTransferStatusId(results.getLong("transfer_status_id"));
+        transferStatus.setTransferStatusDesc(results.getString("transfer_status_desc"));
+        return transferStatus;
+    }
+    //Transfer Type
+    private Transfer mapRowToTransferType(SqlRowSet results){
+        Transfer transferType = new Transfer();
+        transferType.setTransferTypeId(results.getLong("transfer_type_id"));
+        transferType.setTransferTypeDesc(results.getString("transfer_type_desc"));
+        return transferType;
+    }
 }
