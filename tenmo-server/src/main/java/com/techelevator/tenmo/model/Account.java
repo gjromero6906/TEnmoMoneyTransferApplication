@@ -3,6 +3,7 @@ package com.techelevator.tenmo.model;
 public class Account {
     private Long accountId;
     private Long userId;
+
     private Double balance;
 
     private User user = new User();
