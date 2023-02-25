@@ -1,116 +1,76 @@
 package com.techelevator.tenmo.model;
 
-import com.techelevator.tenmo.services.ConsoleService;
+/* This class represents a financial transfer between two parties. It has several private instance variables, each representing a different aspect of the transfer, such as transfer ID,
+   transfer type ID, transfer status ID, the ID of the sender, the ID of the recipient, and the amount being transferred. The class has a default constructor, and also provides public
+   getter and setter methods for each of its private instance variables. This allows other parts of the program to access and modify the transfer's properties as needed. In addition,
+   the 'Transfer' class overrides the 'toString' method, which returns a string representation of the transfer. The returned string includes information about the sender, the amount being
+   transferred, and the recipient.*/
 
 public class Transfer {
-    private Long transferId;
-    private Long transferTypeId;
-    private String transferTypeDesc;
-    private Long transferStatusId;
-    private String trasferStatusDesc;
 
-    private Long accountFrom;
-    private Long accountTo;
-    private Double amount;
+    private long transfer_id;
 
-    public Transfer(Long transferId, Long transferTypeId, String transferTypeDesc, Long transferStatusId, String trasferStatusDesc, Long accountFrom, Long accountTo, Double amount) {
-        this.transferId = transferId;
-        this.transferTypeId = transferTypeId;
-        this.transferTypeDesc = transferTypeDesc;
-        this.transferStatusId = transferStatusId;
-        this.trasferStatusDesc = trasferStatusDesc;
-        this.accountFrom = accountFrom;
-        this.accountTo = accountTo;
-        this.amount = amount;
+    private long transfer_type_id;
+
+    private long transfer_status_id;
+
+    private long transfer_from;
+
+    private long transfer_to;
+
+    private double amount;
+
+    public long getTransfer_id() {
+        return transfer_id;
     }
 
-    public String getTransferTypeDesc() {
-        return transferTypeDesc;
+    public void setTransfer_id(long transfer_id) {
+        this.transfer_id = transfer_id;
     }
 
-    public void setTransferTypeDesc(String transferTypeDesc) {
-        this.transferTypeDesc = transferTypeDesc;
+    public long getTransfer_type_id() {
+        return transfer_type_id;
     }
 
-    private final ConsoleService consoleService = new ConsoleService();
-
-
-    public String toString(TransferType transferType, TransferStatus transferStatus) {
-        return "-------------------- \n" +
-                "Transfer Details\n" +
-                "--------------------\n" +
-                "Id: " + transferId +
-                "\nFrom: " + accountFrom +
-                "\nTo: " + accountTo +
-                "\nAmount: " + consoleService.printPrettyMoney(getAmount()) +
-                "\nType: " +transferType.getTypeDesc() +
-                "\nStatus: "+transferStatus.getTransferStatusDesc();
+    public void setTransfer_type_id(long transfer_type_id) {
+        this.transfer_type_id = transfer_type_id;
     }
 
-    public Transfer() {
+    public long getTransfer_status_id() {
+        return transfer_status_id;
     }
 
-    public String getTrasferStatusDesc() {
-        return trasferStatusDesc;
+    public void setTransfer_status_id(long transfer_status_id) {
+        this.transfer_status_id = transfer_status_id;
     }
 
-    public void setTrasferStatusDesc(String trasferStatusDesc) {
-        this.trasferStatusDesc = trasferStatusDesc;
+    public long getTransfer_from() {
+        return transfer_from;
     }
 
-    public String getTypeDesc() {
-        return transferTypeDesc;
+    public void setTransfer_from(long transfer_from) {
+        this.transfer_from = transfer_from;
     }
 
-    public void setTypeDesc(String typeDesc) {
-        this.transferTypeDesc = typeDesc;
+    public long getTransfer_to() {
+        return transfer_to;
     }
 
-    public Long getTransferId() {
-        return transferId;
+    public void setTransfer_to(long transfer_to) {
+        this.transfer_to = transfer_to;
     }
 
-    public void setTransferId(Long transferId) {
-        this.transferId = transferId;
-    }
-
-    public Long getTransferTypeId() {
-        return transferTypeId;
-    }
-
-    public void setTransferTypeId(Long transferTypeId) {
-        this.transferTypeId = transferTypeId;
-    }
-
-    public Long getTransferStatusId() {
-        return transferStatusId;
-    }
-
-    public void setTransferStatusId(Long transferStatusId) {
-        this.transferStatusId = transferStatusId;
-    }
-
-    public Long getAccountFrom() {
-        return accountFrom;
-    }
-
-    public void setAccountFrom(Long accountFrom) {
-        this.accountFrom = accountFrom;
-    }
-
-    public Long getAccountTo() {
-        return accountTo;
-    }
-
-    public void setAccountTo(Long accountTo) {
-        this.accountTo = accountTo;
-    }
-
-    public Double getAmount() {
+    public double getAmount() {
         return amount;
     }
 
-    public void setAmount(Double amount) {
+    public void setAmount(double amount) {
         this.amount = amount;
+    }
+
+    @Override
+    public String toString() {
+        // TODO Auto-generated method stub
+        return "Transfer From ID: " + getTransfer_from() + " in the amount of: $" + getAmount() + " Was sent to: " + getTransfer_to();
     }
 }
