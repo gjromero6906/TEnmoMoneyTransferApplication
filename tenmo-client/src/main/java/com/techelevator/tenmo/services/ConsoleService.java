@@ -12,6 +12,14 @@ public class ConsoleService {
 
     private final Scanner scanner = new Scanner(System.in);
 
+    public static int getUserInputInteger(String s) {
+        return 0;
+    }
+
+    public static double getUserInputDouble(String s) {
+        return 0;
+    }
+
     public int promptForMenuSelection(String prompt) {
         int menuSelection;
         System.out.print(prompt);

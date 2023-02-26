@@ -88,27 +88,27 @@ public class App {
         }
     }
 
-	private void viewCurrentBalance() {
-		// TODO Auto-generated method stub
+    private void viewCurrentBalance() {
+        // TODO Auto-generated method stub
         AccountService accountService= new AccountService(API_BASE_URL,currentUser);
         Account currentAccount =accountService.getBalance((long)currentUser.getUser().getId());
         consoleService.printGetBalance(currentAccount);
 
-	}
+    }
 
-	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
-	}
+    private void viewTransferHistory() {
+        // TODO Auto-generated method stub
+    }
 
-	private void viewPendingRequests() {
-		// TODO Auto-generated method stub
-		
-	}
+    private void viewPendingRequests() {
+        // TODO Auto-generated method stub
 
-	private void sendBucks() {
-		// TODO Auto-generated method stub
+    }
+
+    private void sendBucks() {
+        // TODO Auto-generated method stub
         AccountService accountService = new AccountService(API_BASE_URL,currentUser);
-        Account current = accountService.getAccountById((long)currentUser.getUser().getId());
+        Account current = AccountService.getAccountById((long)currentUser.getUser().getId());
         Account[] accounts = accountService.listAccounts();
         User[] users = accountService.getUsers();
         for(int i = 0;i<accounts.length;i++){
@@ -135,13 +135,11 @@ public class App {
             consoleService.transactionApproved(amount);
             consoleService.printMainMenu();
         }
-
-
     }
 
-	private void requestBucks() {
-		// TODO Auto-generated method stub
-		
-	}
+    private void requestBucks() {
+        // TODO Auto-generated method stub
+
+    }
 
 }

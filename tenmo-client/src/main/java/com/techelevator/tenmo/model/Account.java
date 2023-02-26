@@ -1,5 +1,7 @@
 package com.techelevator.tenmo.model;
 
+
+
 public class Account {
     private Long accountId;
     private Long userId;
@@ -44,5 +46,15 @@ public class Account {
 
     public void setBalance(Double balance) {
         this.balance = balance;
+    }
+
+    public boolean userExists(long accountToSend) {
+        return false;
+    }
+
+    public void withdraw(Long accountId, double amount) {
+    }
+
+    public void deposit(long accountToSend, double amount) {
     }
 }

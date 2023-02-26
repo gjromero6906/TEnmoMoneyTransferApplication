@@ -39,3 +39,4 @@ public class User {
         return Objects.hash(id, username);
     }
 }
+

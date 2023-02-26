@@ -2,6 +2,7 @@ package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
 import com.techelevator.util.BasicLogger;
 import org.springframework.http.*;
 import org.springframework.web.client.ResourceAccessException;
@@ -9,13 +10,13 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 public class TransferService {
-    private String API_BASE_URL;
-    private RestTemplate restTemplate = new RestTemplate();
-    private AuthenticatedUser user;
+    private static String API_BASE_URL;
+    private static RestTemplate restTemplate = new RestTemplate();
+    private static AuthenticatedUser user;
 
     public TransferService(String URL, AuthenticatedUser authenticatedUser) {
-        this.user = authenticatedUser;
-        this.API_BASE_URL = URL;
+        user = authenticatedUser;
+        API_BASE_URL = URL;
     }
 
     private HttpEntity<Void> makeAuthEntity() {
@@ -24,7 +25,7 @@ public class TransferService {
         return new HttpEntity(headers);
     }
 
-    private HttpEntity<Transfer> makeTransferEntity(Transfer transfer) {
+    private static HttpEntity<Transfer> makeTransferEntity(Transfer transfer) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(user.getToken());
@@ -81,7 +82,7 @@ public class TransferService {
         return transfers;
     }
 
-    public Transfer addTransfer(Transfer transfer) {
+    public static Transfer addTransfer(Transfer transfer) {
         Transfer t = transfer;
         try {
             //this whole mess gets reduced
@@ -176,5 +177,22 @@ public class TransferService {
             BasicLogger.log(e.getMessage());
         }
         return transferStatus;
+    }
+
+    public User[] listUsers() {
+        User[] users = null;
+        try {
+            ResponseEntity<User[]> response =
+                    restTemplate.exchange(API_BASE_URL + "users",
+                            HttpMethod.GET,
+                            makeAuthEntity(),
+                            User[].class);
+            users = response.getBody();
+        } catch (RestClientResponseException e) {
+            BasicLogger.log(e.getRawStatusCode() + " : " + e.getStatusText());
+        } catch (ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+        }
+        return users;
     }
 }
