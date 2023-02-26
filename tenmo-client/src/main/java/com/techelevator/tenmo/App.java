@@ -5,6 +5,7 @@ import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
 import com.techelevator.tenmo.services.TransferService;
+import io.cucumber.java.cy_gb.A;
 
 import java.math.BigDecimal;
 
@@ -106,12 +107,37 @@ public class App {
 
 	private void sendBucks() {
 		// TODO Auto-generated method stub
-        //AccountService accountService= new AccountService(API_BASE_URL,currentUser);
-        //Account currentAccount =accountService.getBalance((long)currentUser.getUser().getId());
-        //double amount = consoleService.promptForBigDecimal("Please enter amount");
-        //accountService.withdraw(currentAccount,currentAccount.getAccountId(),)
-		
-	}
+        AccountService accountService = new AccountService(API_BASE_URL,currentUser);
+        Account current = accountService.getAccountById((long)currentUser.getUser().getId());
+        Account[] accounts = accountService.listAccounts();
+        User[] users = accountService.getUsers();
+        for(int i = 0;i<accounts.length;i++){
+            System.out.println(accounts[i].getAccountId()+" "+ users[i].getUsername());
+        }
+        long accountToSend = Long.parseLong(consoleService.promptForString("please enter id to send"));
+        while (!accountService.userExists(accountToSend) && accountToSend== current.getAccountId() ){
+            System.out.println("user is invalid");
+            for(int i = 0;i<accounts.length;i++){
+                System.out.println(accounts[i].getAccountId()+" "+ users[i].getUsername());
+            }
+            accountToSend =Long.parseLong(consoleService.promptForString("please enter id to send"));
+        }
+        double amount = consoleService.promptForInt("enter amount to send");
+        if (amount<0){
+            System.out.println("Can't send negative");
+            consoleService.printMainMenu();
+        }else if(amount>current.getBalance()){
+            System.out.println("Sending this amount will over draw,transaction not approve");
+            consoleService.printMainMenu();
+        }else {
+            accountService.withdraw(current.getAccountId(),amount);
+            accountService.deposit(accountToSend,amount);
+            consoleService.transactionApproved(amount);
+            consoleService.printMainMenu();
+        }
+
+
+    }
 
 	private void requestBucks() {
 		// TODO Auto-generated method stub
