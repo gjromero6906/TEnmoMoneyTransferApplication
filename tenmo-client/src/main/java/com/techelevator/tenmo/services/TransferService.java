@@ -48,12 +48,12 @@ public class TransferService {
     }
 
 
-    public TransferDetail[] getAllTransferFrom(Long id) {
-        TransferDetail[] transfers = null;
+    public Transfer[] getAllTransferFrom(Long id) {
+        Transfer[] transfers = null;
         try {
-            ResponseEntity<TransferDetail[]> response =
+            ResponseEntity<Transfer[]> response =
                     restTemplate.exchange(API_BASE_URL + "transferdetails/" + id, HttpMethod.GET,
-                            makeAuthEntity(), TransferDetail[].class);
+                            makeAuthEntity(), Transfer[].class);
             transfers = response.getBody();
 
         } catch (RestClientResponseException e) {
