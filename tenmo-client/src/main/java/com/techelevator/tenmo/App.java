@@ -6,6 +6,8 @@ import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
 import com.techelevator.tenmo.services.TransferService;
 
+import java.math.BigDecimal;
+
 public class App {
 
     private static final String API_BASE_URL = "http://localhost:8080/";
@@ -89,7 +91,7 @@ public class App {
 		// TODO Auto-generated method stub
         AccountService accountService= new AccountService(API_BASE_URL,currentUser);
         Account currentAccount =accountService.getBalance((long)currentUser.getUser().getId());
-        System.out.println(currentAccount.getBalance());
+        consoleService.printGetBalance(currentAccount);
 
 	}
 
@@ -104,6 +106,10 @@ public class App {
 
 	private void sendBucks() {
 		// TODO Auto-generated method stub
+        //AccountService accountService= new AccountService(API_BASE_URL,currentUser);
+        //Account currentAccount =accountService.getBalance((long)currentUser.getUser().getId());
+        //double amount = consoleService.promptForBigDecimal("Please enter amount");
+        //accountService.withdraw(currentAccount,currentAccount.getAccountId(),)
 		
 	}
 
