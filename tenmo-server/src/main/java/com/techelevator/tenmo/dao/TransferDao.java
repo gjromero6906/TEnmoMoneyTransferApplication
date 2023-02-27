@@ -2,28 +2,20 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Transfer;
 
+
+import java.util.List;
+
+// lays out the methods that any class implementing this interface must implement.
+// These methods provide functionality for interacting with transfer data stored in a database.
 public interface TransferDao {
-    //For the type of transfer
 
-    Transfer getTransferTypeById(Long id);
+    boolean create(Transfer transfer, int transferType, int transferStatus);
 
-    Transfer[] getAllTransferTypes();
+    List<Transfer> listBySender(Long senderId);
 
-    // all related to Status
-    Transfer[] getAllTransferStatus();
+    Transfer getById(Long transferId);
 
-    Transfer getTransferStatus(Long id);
-    //for a regular transfer
-    Transfer[] getAllTransfers();
+    List<Transfer> listAllTransfers();
 
-    Transfer[] getTransfersByUserId(Long id);
-
-    void updateTransfer(Transfer transfer, Long typeId, Long statusId, Long transferId);
-
-    Transfer getTransferByTransferId(Long id);
-
-    Transfer[] getTransferDetails(Long id);
-
-    Transfer addTransfer(Transfer transfer, Long statusId, Long statusTypeId, Long idFrom, Long idTo, Double amount);
-
+    boolean update(Transfer transfer);
 }

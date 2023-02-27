@@ -1,35 +1,36 @@
 package com.techelevator.tenmo.model;
 
+// This class provides a basic model for a bank account that can be used in a larger application or system.
 
+import java.math.BigDecimal;
 
 public class Account {
-    private Long accountId;
+
+    //It has four private instance variables:
+    //id - a Long value that represents the unique identifier of the account
+    //userId - a Long value that represents the unique identifier of the user that owns the account
+    //balance - a BigDecimal value that represents the current balance of the account
+    //username - a String value that represents the username of the user that owns the account
+    private Long id;
     private Long userId;
-    private Double balance;
+    private BigDecimal balance;
+    private String username;
 
-    public Account(Long accountId, Long userId, Double balance) {
-        this.accountId = accountId;
-        this.userId = userId;
+    //The class has getter and setter methods for each instance variable, allowing other parts of the code to access or modify the values of these variables.
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
+    }
+
+    public void setBalance(BigDecimal balance) {
         this.balance = balance;
-    }
-
-    public Account() {
-    }
-
-    @Override
-    public String toString() {
-        return  "accountId = " + accountId +
-                ", userId = " + userId +
-                ", balance = " + balance +
-                '}';
-    }
-
-    public Long getAccountId() {
-        return accountId;
-    }
-
-    public void setAccountId(Long accountId) {
-        this.accountId = accountId;
     }
 
     public Long getUserId() {
@@ -40,21 +41,21 @@ public class Account {
         this.userId = userId;
     }
 
-    public Double getBalance() {
-        return balance;
+    public String getUsername() {
+        return username;
     }
 
-    public void setBalance(Double balance) {
-        this.balance = balance;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public boolean userExists(long accountToSend) {
-        return false;
-    }
-
-    public void withdraw(Long accountId, double amount) {
-    }
-
-    public void deposit(long accountToSend, double amount) {
+    //The toString() method has also been overridden to provide a string representation of an Account object, which includes the values of its instance variables.
+    @Override
+    public String toString() {
+        return "BankAccount{" +
+                "id=" + id +
+                ", userId='" + userId + '\'' +
+                ", balance=" + balance +
+                '}';
     }
 }

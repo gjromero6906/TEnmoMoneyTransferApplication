@@ -1,157 +1,96 @@
 package com.techelevator.tenmo.model;
 
-/* This class represents a financial transfer between two parties. It has several private instance variables, each representing a different aspect of the transfer, such as transfer ID,
-   transfer type ID, transfer status ID, the ID of the sender, the ID of the recipient, and the amount being transferred. The class has a default constructor, and also provides public
-   getter and setter methods for each of its private instance variables. This allows other parts of the program to access and modify the transfer's properties as needed. In addition,
-   the 'Transfer' class overrides the 'toString' method, which returns a string representation of the transfer. The returned string includes information about the sender, the amount being
-   transferred, and the recipient.*/
-
-import com.techelevator.tenmo.services.AccountService;
-import com.techelevator.tenmo.services.ConsoleService;
-import com.techelevator.tenmo.services.TransferService;
+import java.math.BigDecimal;
 
 public class Transfer {
+// Has six private instance variables: id, amount, fromAccountID, toAccountID, transferStatus, and transferType.
+// The id variable is a Long type that represents the transfer ID. The amount variable is a BigDecimal type that represents the amount of money transferred.
+// The fromAccountID variable is a Long type that represents the account ID of the account that initiated the transfer.
+// The toAccountID variable is a Long type that represents the account ID of the account receiving the transfer.
+// The transferStatus variable is an int type that represents the status of the transfer (i.e. pending, approved, rejected).
+// The transferType variable is an int type that represents the type of transfer (i.e. request, send).
+    private Long id;
+    private BigDecimal amount;
+    private Long fromAccountID;
+    private Long toAccountID;
+    private int transferStatus;
+    private int transferType;
 
-
-    private long transfer_id;
-
-    private long transfer_type_id;
-
-    private long transfer_status_id;
-
-    private long transfer_from;
-
-    private long transfer_to;
-
-    private double amount;
-
-
-    private UserService userService;
-
+//The first constructor takes five parameters: amount, fromAccountID, toAccountID, transferStatus, and transferType.
+//These parameters are used to initialize the instance variables of the Transfer object.
+    public Transfer(BigDecimal amount, Long fromAccountID, Long toAccountID, int transferStatus, int transferType) {
+        this.amount = amount;
+        this.fromAccountID = fromAccountID;
+        this.toAccountID = toAccountID;
+        this.transferStatus = transferStatus;
+        this.transferType = transferType;
+    }
+//The second constructor is a default constructor with no parameters.
     public Transfer() {
-        this.userService = userService;
     }
 
-    public void setTransferStatusId(long l) {
-    }
-
-    public void setTransferTypeId(long l) {
-    }
-
-    public void setAccountTo(int recipientId) {
-    }
-
-    public long getTransfer_id() {
-        return transfer_id;
-    }
-
-    public void setTransfer_id(long transfer_id) {
-        this.transfer_id = transfer_id;
-    }
-
-    public long getTransfer_type_id() {
-        return transfer_type_id;
-    }
-
-    public void setTransfer_type_id(long transfer_type_id) {
-        this.transfer_type_id = transfer_type_id;
-    }
-
-    public long getTransfer_status_id() {
-        return transfer_status_id;
-    }
-
-    public void setTransfer_status_id(long transfer_status_id) {
-        this.transfer_status_id = transfer_status_id;
-    }
-
-    public long getTransfer_from() {
-        return transfer_from;
-    }
-
-    public void setTransfer_from(long transfer_from) {
-        this.transfer_from = transfer_from;
-    }
-
-    public long getTransfer_to() {
-        return transfer_to;
-    }
-
-    public void setTransfer_to(long transfer_to) {
-        this.transfer_to = transfer_to;
-    }
-
-    public double getAmount() {
+    //Has six accessor methods that can be used to get and set the values of the instance variables.
+    // The getId method returns the value of the id variable. The getAmount method returns the value of the amount variable.
+    // The getFromAccountID method returns the value of the fromAccountID variable. The getToAccountID method returns the value of the toAccountID variable.
+    // The getTransferStatus method returns the value of the transferStatus variable. The getTransferType method returns the value of the transferType variable.
+    //Each of these accessor methods has a corresponding mutator method that can be used to set the value of the associated instance variable.
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getFromAccountID() {
+        return fromAccountID;
+    }
+
+    public void setFromAccountID(Long fromAccountID) {
+        this.fromAccountID = fromAccountID;
+    }
+
+    public Long getToAccountID() {
+        return toAccountID;
+    }
+
+    public void setToAccountID(Long toAccountID) {
+        this.toAccountID = toAccountID;
+    }
+
+    public int getTransferStatus() {
+        return transferStatus;
+    }
+
+    public void setTransferStatus(int transferStatus) {
+        this.transferStatus = transferStatus;
+    }
+
+    public int getTransferType() {
+        return transferType;
+    }
+
+    public void setTransferType(int transferType) {
+        this.transferType = transferType;
+    }
+
+    // Has a toString method that returns a string representation of the Transfer object.
+    // This method concatenates the values of the id, amount, fromAccountID, and toAccountID variables into a string.
     @Override
     public String toString() {
-        // TODO Auto-generated method stub
-        return "Transfer From ID: " + getTransfer_from() + " in the amount of: $" + getAmount() + " Was sent to: " + getTransfer_to();
-    }
-
-    public void sendBucks() {
-        // show list of users to select for sending money
-        User[] users = userService.listUsers();
-        System.out.println("-------------------------------------------");
-        System.out.println("Users");
-        System.out.println("ID          Name");
-        System.out.println("-------------------------------------------");
-        for (User user : users) {
-            System.out.println(user.getId() + "          " + user.getUsername());
-        }
-        System.out.println("0          Exit");
-        System.out.println("-------------------------------------------");
-
-        // prompt user to select recipient
-        int recipientId = ConsoleService.getUserInputInteger("Enter ID of user you are sending to (0 to cancel): ");
-        if (recipientId == 0) {
-            return;
-        }
-
-        // prompt user to enter amount to send
-        double amount = ConsoleService.getUserInputDouble("Enter amount: ");
-
-        // get current account
-        Account currentAccount = AccountService.getCurrentAccount();
-
-        // get account from which money will be sent
-        Account accountFrom = AccountService.getAccountById(currentAccount.getAccountId());
-
-        // check if accountFrom is null
-        if (accountFrom == null) {
-            System.out.println("Error: Account not found.");
-            return;
-        }
-
-        // create transfer object
-        Transfer transfer = new Transfer();
-        transfer.setAccountFrom(accountFrom.getAccountId());
-        transfer.setAccountTo(recipientId);
-        transfer.setAmount(amount);
-        transfer.setTransferTypeId(2L); // regular transfer
-        transfer.setTransferStatusId(2L); // approved
-
-        // send the transfer
-        Transfer sentTransfer = TransferService.addTransfer(transfer);
-        if (sentTransfer != null) {
-            System.out.println("Transfer successful!");
-        } else {
-            System.out.println("Transfer failed.");
-        }
-    }
-
-    public void setAccountFrom(Long accountId) {
-    }
-
-    private static class UserService {
-        public User[] listUsers() {
-            return new User[0];
-        }
+        return "Transfer{" +
+                "id=" + id +
+                ", amount=" + amount +
+                ", fromAccountID=" + fromAccountID +
+                ", toAccountID=" + toAccountID +
+                '}';
     }
 }

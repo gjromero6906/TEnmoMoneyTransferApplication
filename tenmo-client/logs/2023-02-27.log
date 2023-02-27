@@ -1,0 +1,3 @@
+2023-02-27T15:40:03.1483264 500 : [{"timestamp":"2023-02-27T21:40:03.136+00:00","status":500,"error":"Internal Server Error","message":"PreparedStatementCallback; SQL [INSERT INTO tenmo_user (username, password_hash) VALUES (?, ?) RETU... (528 bytes)]
+2023-02-27T15:40:08.8296101 401 : [{"timestamp":"2023-02-27T21:40:08.824+00:00","status":401,"error":"Unauthorized","message":"User 2018 was not found.","path":"/account/2018"}]
+2023-02-27T15:41:38.9672128 401 : [{"timestamp":"2023-02-27T21:41:38.955+00:00","status":401,"error":"Unauthorized","message":"User 1004 was not found.","path":"/account/1004"}]

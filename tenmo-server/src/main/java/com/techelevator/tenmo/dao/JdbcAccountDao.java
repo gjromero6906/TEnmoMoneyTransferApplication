@@ -1,17 +1,22 @@
 package com.techelevator.tenmo.dao;
 
+
 import com.techelevator.tenmo.model.Account;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+// implements the AccountDao interface. It interacts with a database using JDBC (Java Database Connectivity) to handle the Account objects.
 @Component
 public class JdbcAccountDao implements AccountDao {
 
+    private static final BigDecimal STARTING_BALANCE = new BigDecimal("1000.00");
     private JdbcTemplate jdbcTemplate;
 
     public JdbcAccountDao(JdbcTemplate jdbcTemplate) {
@@ -19,87 +24,58 @@ public class JdbcAccountDao implements AccountDao {
     }
 
     @Override
-    public Account getBalance(Long userId) {
-        Account account = null;
-        String SQL = "SELECT balance, user_id, account_id FROM account" +
-                " WHERE user_id = ?;";
-        SqlRowSet results = null;
-
-        try {
-            results = jdbcTemplate.queryForRowSet(SQL, userId);
-            if (results.next()) {
-                account = mapRowToAccount(results);
-            }
-        } catch (DataAccessException e) {
-            System.out.println("Error accessing data");
+    public List<String> listAccounts() {
+        List<String> list = new ArrayList<>();
+        String sql = "SELECT account_id, username, user_id FROM account JOIN tenmo_user USING (user_id);";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
+        while(results.next()) {
+            list.add("Account ID: " + results.getInt("account_id") + " " + "Username: " + results.getString("username"));
         }
-        return account;
+        return list;
     }
 
     @Override
     public Account findByUserId(Long id) {
-        Account account = null;
-        String SQL = "SELECT * FROM account WHERE user_id = ?;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(SQL, id);
-        while(results.next()){
-            account = mapRowToAccount(results);
+        String sql = "SELECT account_id, user_id, balance, username FROM account " +
+                "JOIN tenmo_user USING (user_id) WHERE account_id = ?;";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, id);
+        if (rowSet.next()){
+            return mapRowToAccount(rowSet);
         }
-        return account;
+        throw new UsernameNotFoundException("User " + id + " was not found.");
     }
 
     @Override
-    public Account findByAccountId(Long id) {
-        Account account = null;
-        String SQL = "SELECT * FROM account WHERE account_id = ?;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(SQL, id);
-        while(results.next()){
-            account = mapRowToAccount(results);
+    public Account findByUserId(Account account) {
+        String sql = "SELECT account_id, user_id, balance, username FROM account " +
+                "JOIN tenmo_user USING (user_id) WHERE account_id = ?;";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, account.getId());
+        if (rowSet.next()){
+            return mapRowToAccount(rowSet);
         }
-        return account;
+        if (rowSet.next()){
+            return mapRowToAccount(rowSet);
+        }
+        throw new UsernameNotFoundException("User " + account.getId() + " was not found.");
     }
 
     @Override
-    public Account[] findAllAccounts() {
-        List<Account> accounts = new ArrayList<>();
-        String SQL = "SELECT * FROM account;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(SQL);
-        while(results.next()){
-            Account account = mapRowToAccount(results);
-            accounts.add(account);
+    public boolean update(Account account) {
+        String sql = "UPDATE account SET balance = ? WHERE account_id = ?;";
+        try {
+            jdbcTemplate.update(sql, account.getBalance(), account.getId());
+        } catch (DataAccessException e) {
+            return false;
         }
-        return accounts.toArray(new Account[0]);
+        return true;
     }
 
-    @Override
-    public Account withdrawAcct(Account account, Long id, Double amount) {
-        Account acct = findByUserId(id);
-
-        if(acct.getBalance()<amount){
-            System.out.println("Not enough money for this transaction");
-            return acct;
-        }
-        acct.setBalance(acct.getBalance()-amount);
-        String SQL = "UPDATE account SET balance = balance - ? WHERE user_id = ?;";
-        jdbcTemplate.update(SQL,amount, id);
-        return acct;
+    private Account mapRowToAccount(SqlRowSet rs) {
+        Account bankAccount = new Account();
+        bankAccount.setId(rs.getLong("account_id"));
+        bankAccount.setUserId(rs.getLong("user_id"));
+        bankAccount.setBalance(rs.getBigDecimal("balance"));
+        bankAccount.setUsername(rs.getString("username"));
+        return bankAccount;
     }
-
-    @Override
-    public Account depositAcct(Account account, Long id, Double amount) {
-        Account acct = findByUserId(id);
-
-        acct.setBalance(acct.getBalance()+amount);
-        String SQL = "UPDATE account SET balance = balance + ? WHERE user_id = ?;";
-        jdbcTemplate.update(SQL,amount, id);
-        return acct;
-    }
-
-    private Account mapRowToAccount(SqlRowSet result) {
-        Account account = new Account();
-        account.setBalance(result.getDouble("balance"));
-        account.setAccountId(result.getLong("account_id"));
-        account.setUserId(result.getLong("user_id"));
-        return account;
-    }
-
 }
