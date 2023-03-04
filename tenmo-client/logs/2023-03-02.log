@@ -1,0 +1,2 @@
+2023-03-02T16:05:26.601864 401 : [{"timestamp":"2023-03-02T21:05:26.582+00:00","status":401,"error":"Unauthorized","message":"User 2007 was not found.","path":"/account/2007"}]
+2023-03-02T16:06:13.8903327 500 : [{"timestamp":"2023-03-02T21:06:13.876+00:00","status":500,"error":"Internal Server Error","message":"Invalid cursor position; nested exception is java.sql.SQLException: Invalid cursor position","path":"/transfer/3001"}]
