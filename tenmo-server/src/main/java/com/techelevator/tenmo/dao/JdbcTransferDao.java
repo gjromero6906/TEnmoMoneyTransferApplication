@@ -10,8 +10,12 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-//implements the TransferDao interface.
-// The JdbcTransferDao interacts with the database to perform CRUD (Create, Read, Update, Delete) operations on transfer records.
+//This class is a Data Access Object (DAO) that handles interactions with the database related to transfers:
+//It uses a JdbcTemplate object to interact with the database.
+//It implements the TransferDao interface.
+//It has methods to send, request, and update transfers.
+//It has methods to update the account balances of the sender and receiver for a given transfer.
+//It has a method to retrieve a list of transfers for a given user.
 @Component
 public class JdbcTransferDao implements TransferDao {
 

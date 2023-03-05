@@ -6,11 +6,17 @@ import com.techelevator.tenmo.model.User;
 import com.techelevator.util.BasicLogger;
 import org.springframework.http.*;
 import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Scanner;
+//TransferService(String baseUrl): constructor that takes in a base URL for the API
+//setAuthToken(AuthenticatedUser currentUser): sets the auth token for the current user
+//sendBucks(Transfer transfer): sends a transfer from the current user's account to another user's account
+//requestBucks(Transfer transfer): sends a request for a transfer from another user's account to the current user's account
+//userTransfers(User user): gets a list of all transfers for the current user's account
+//updateTransfer(Transfer transfer): updates the status of a transfer (approve or reject)
+//makeAuthEntity(): creates an HTTP entity with the current user's auth token
+//makeTransferEntity(Transfer transfer): creates an HTTP entity with a transfer object and the current user's auth token
 
 public class TransferService {
     private String baseUrl;

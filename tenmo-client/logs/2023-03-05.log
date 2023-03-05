@@ -1,2 +1,6 @@
 2023-03-05T12:35:19.6711933 401 : [{"timestamp":"2023-03-05T18:35:19.646+00:00","status":401,"error":"Unauthorized","message":"User 2051 was not found.","path":"/account/2051"}]
 2023-03-05T12:58:41.306854 400 : [{"timestamp":"2023-03-05T18:58:41.277+00:00","status":400,"error":"Bad Request","message":"User registration failed.","path":"/register"}]
+2023-03-05T13:58:18.5644998 401 : [no body]
+2023-03-05T13:58:31.4825752 400 : [{"timestamp":"2023-03-05T19:58:31.480+00:00","status":400,"error":"Bad Request","message":"User registration failed.","path":"/register"}]
+2023-03-05T13:58:46.8514283 401 : [no body]
+2023-03-05T13:59:28.5627303 401 : [no body]

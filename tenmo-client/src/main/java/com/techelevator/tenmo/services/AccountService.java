@@ -9,13 +9,13 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
-// Provides methods to interact with the RESTful API for accounts provided by a Tenmo application.
-// This class uses the Spring Framework's RestTemplate to make HTTP requests to the API.
-//Also logs exceptions using the BasicLogger utility class if there are any exceptions thrown while making the HTTP requests.
+// Provides methods to interact with the Tenmo application's account-related REST endpoints
+// Contains private instance variables for the base URL, a RestTemplate instance, an authentication token, and the current user
+// Provides setter methods for the authentication token and current user
+// Provides methods to retrieve all users, retrieve a user by username, and retrieve the current user's account balance
+// Contains a private method to create an HTTP entity with an authentication token for use in making authorized requests to the REST endpoints.
+
 public class AccountService {
 
     private String baseUrl;
@@ -34,7 +34,6 @@ public class AccountService {
     public void setCurrentUser(User currentUser) {
         this.currentUser = currentUser;
     }
-
 
     public User[] getUsers() {
         User[] users = null;
@@ -64,7 +63,6 @@ public class AccountService {
         return user;
     }
 
-
     public BigDecimal getAccountBalance() {
         BigDecimal accountBalance = null;
         try {
@@ -80,12 +78,9 @@ public class AccountService {
         return accountBalance;
     }
 
-
     private HttpEntity<Void> makeAuthEntity() {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(authToken);
         return new HttpEntity<>(headers);
     }
-
-
 }

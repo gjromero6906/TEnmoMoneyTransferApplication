@@ -13,6 +13,11 @@ import org.springframework.web.client.RestTemplate;
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.UserCredentials;
 
+// Provides methods to interact with the Tenmo application's authentication-related REST endpoints
+// Contains private instance variables for the base URL and a RestTemplate instance
+// Provides a constructor to set the base URL
+// Provides methods to authenticate a user by verifying their credentials and retrieve an authentication token, and to register a new user
+// Contains a private method to create an HTTP entity with user credentials for use in making requests to the REST endpoints.
 public class AuthenticationService {
 
     private final String baseUrl;

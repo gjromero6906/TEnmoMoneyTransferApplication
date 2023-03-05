@@ -2,7 +2,6 @@ package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.User;
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -13,6 +12,13 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+//This class contains a Data Access Object (DAO) implementation for User-related database operations, such as finding user IDs, account balances, creating new users, and retrieving information about users. The class includes methods for:
+//Finding a user's ID by their username
+//Retrieving a list of all users with accounts, excluding the user with the provided username
+//Retrieving a User object with account information (ID, username, balance) by their username
+//Retrieving a User object by their username, including their password hash
+//Creating a new user with a given username and password hash, and creating an account with a starting balance
+//Retrieving an account balance for a given user ID
 @Component
 public class JdbcUserDao implements UserDao {
 

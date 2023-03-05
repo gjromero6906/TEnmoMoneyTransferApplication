@@ -107,4 +107,11 @@ public class User {
               ", authorities=" + authorities +
               '}';
    }
+
+   public int getId() {
+      return 0;
+   }
+
+   public void setId(int id) {
+   }
 }

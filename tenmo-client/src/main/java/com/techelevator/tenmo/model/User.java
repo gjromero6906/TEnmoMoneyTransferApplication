@@ -3,7 +3,14 @@ package com.techelevator.tenmo.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.math.BigDecimal;
-import java.util.Objects;
+
+// Represents a user of the Tenmo application
+//Contains private instance variables for the user ID, username, and account balance
+// Provides getter and setter methods for the user ID and account balance
+// Contains a method to retrieve the user ID
+// Overrides the equals method to compare users by ID and username
+// Contains a method to generate a formatted string for printing user details.
+//Regenerate response
 
 public class User {
 

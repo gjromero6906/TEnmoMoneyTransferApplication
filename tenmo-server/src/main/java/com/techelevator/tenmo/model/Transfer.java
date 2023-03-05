@@ -1,12 +1,5 @@
 package com.techelevator.tenmo.model;
 
-/* The Transfer class has six private instance variables: id, amount, fromAccountID, toAccountID, transferStatus, and transferType.
-The id variable is a Long type that represents the transfer ID. The amount variable is a BigDecimal type that represents the amount of money transferred.
-The fromAccountID variable is a Long type that represents the account ID of the account that initiated the transfer.
-The toAccountID variable is a Long type that represents the account ID of the account receiving the transfer.
-The transferStatus variable is an int type that represents the status of the transfer (i.e. pending, approved, rejected).
-The transferType variable is an int type that represents the type of transfer (i.e. request, send).*/
-
 import java.math.BigDecimal;
 
 public class Transfer {

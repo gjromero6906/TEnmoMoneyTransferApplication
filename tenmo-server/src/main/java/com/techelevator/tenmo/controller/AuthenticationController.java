@@ -24,6 +24,11 @@ import org.springframework.web.server.ResponseStatusException;
  * Controller to authenticate users.
  */
 
+//This is the AuthenticationController class. It authenticates users and generates JWT tokens for them.
+//The class has the following methods:
+//login: Takes a LoginDTO object (username and password) in the request body and attempts to authenticate the user. If the user is successfully authenticated, a JWT token is generated using the TokenProvider and returned in a LoginResponse object along with the user's information.
+//register: Takes a RegisterUserDTO object (username and password) in the request body and attempts to create a new user with the UserDao. If successful, the method returns a 201 CREATED response. Otherwise, a BAD REQUEST response is returned.
+//LoginResponse class: An inner class used to return the JWT token and user information in the response body.
 @RestController
 public class AuthenticationController {
 
@@ -37,7 +42,6 @@ public class AuthenticationController {
         this.userDao = userDao;
     }
 
-   // @ApiOperation("Authenticates the user with the given username and password")
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public LoginResponse login(@Valid @RequestBody LoginDTO loginDto) {
 
@@ -53,7 +57,6 @@ public class AuthenticationController {
         return new LoginResponse(jwt, user);
     }
 
-   // @ApiOperation("Registers a new user")
     @ResponseStatus(HttpStatus.CREATED)
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public void register(@Valid @RequestBody RegisterUserDTO newUser) {

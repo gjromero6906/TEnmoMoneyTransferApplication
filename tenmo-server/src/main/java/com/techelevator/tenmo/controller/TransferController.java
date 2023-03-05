@@ -11,7 +11,11 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 
-
+//This class is the TransferController, which contains methods for handling HTTP requests related to transfers, such as sending and requesting money, updating transfers, and returning transfer history. Some of the main features of this class include:
+//Use of the TransferDao and UserDao interfaces to interact with the database and retrieve information about transfers and users.
+//Several constants are defined, including the transfer status codes and transfer types.
+//Annotations such as @RestController and @PreAuthorize are used to specify the behavior of this class.
+//Methods such as sendBucks(), userTransfers(), requestBucks(), and updateTransfer() handle different types of transfer-related HTTP requests. These methods make use of the Transfer and User models to manipulate the database and retrieve information.
 @RestController
 @PreAuthorize("isAuthenticated()")
 public class TransferController {
@@ -28,7 +32,6 @@ public class TransferController {
         this.transferDao = transferDao;
     }
 
-    //@ApiOperation("Creates an approved transfer and then updates account balances of the sender and receiver of TE Bucks.")
     @RequestMapping(path = "/send/", method = RequestMethod.POST)
     public void sendBucks(@RequestBody Transfer transfer) {
         int transferId = transferDao.sendRequestBucks(transfer);
@@ -36,7 +39,6 @@ public class TransferController {
         transferDao.updateReceiverAccountBalance(transferId, transfer);
     }
 
-  //  @ApiOperation("Returns a list of transfers the signed in user has on record")
     @RequestMapping(path = "/transfer/history/", method = RequestMethod.GET)
     public List<Transfer> userTransfers(Principal principal) {
         String username = principal.getName();
@@ -44,13 +46,11 @@ public class TransferController {
         return transferDao.userTransfers(user);
     }
 
-   // @ApiOperation("Creates a transfer Request with signed in user as the recipient ")
     @RequestMapping(path = "/request/", method = RequestMethod.POST)
     public void requestBucks(@RequestBody Transfer transfer) {
         transferDao.sendRequestBucks(transfer);
     }
 
-  //  @ApiOperation("Updates the transfers for a request transfer that has been approved.")
     @RequestMapping(path = "/transfer/", method = RequestMethod.PUT)
     public void updateTransfer(@RequestBody Transfer transfer) {
         transferDao.updateTransfer(transfer);

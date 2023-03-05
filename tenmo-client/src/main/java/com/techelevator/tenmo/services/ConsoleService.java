@@ -6,9 +6,12 @@ import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.model.UserCredentials;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
 import java.util.Scanner;
 
+// Provides methods to interact with the Tenmo application via the console interface
+// Contains a private instance variable for a Scanner object to read user input
+// Provides methods to prompt the user for menu selections, credentials, strings, integers, and decimal numbers, and to print greetings, menus, and various types of information
+// Contains methods to display user details and a list of transfers, and to prompt the user to approve or reject a pending transfer.
 public class ConsoleService {
 
     private final Scanner scanner = new Scanner(System.in);
