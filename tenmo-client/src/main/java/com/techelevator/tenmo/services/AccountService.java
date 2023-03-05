@@ -45,7 +45,7 @@ public class AccountService {
     }
 
     public static Account get(Long id) {
-        Account account = null;
+        Account account = new Account();
         try {
             ResponseEntity<Account> response =
                     restTemplate.exchange(API_BASE_URL + id, HttpMethod.GET, makeAuthEntity(), Account.class);
