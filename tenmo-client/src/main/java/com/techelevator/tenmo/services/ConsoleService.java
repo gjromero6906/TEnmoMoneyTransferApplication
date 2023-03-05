@@ -1,7 +1,8 @@
 package com.techelevator.tenmo.services;
 
 
-import com.techelevator.tenmo.model.Account;
+import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.model.UserCredentials;
 
 import java.math.BigDecimal;
@@ -11,14 +12,6 @@ import java.util.Scanner;
 public class ConsoleService {
 
     private final Scanner scanner = new Scanner(System.in);
-
-    public static int getUserInputInteger(String s) {
-        return 0;
-    }
-
-    public static double getUserInputDouble(String s) {
-        return 0;
-    }
 
     public int promptForMenuSelection(String prompt) {
         int menuSelection;
@@ -97,26 +90,44 @@ public class ConsoleService {
     public void printErrorMessage() {
         System.out.println("An error occurred. Check the log for details.");
     }
-    public void printGetBalance(Account acct) {
-        NumberFormat nf = NumberFormat.getCurrencyInstance();
-        System.out.println("Your current account balance is: " + nf.format(acct.getBalance()));
+
+    public int userIdForSendRequestMoney(User[] users) {
+        System.out.println("---------------------------------------------");
+        System.out.println("Users");
+        System.out.println("ID      Name");
+        System.out.println("----------------------------------------------");
+
+        for (int i = 0; i < users.length; i++) {
+            System.out.println(users[i].selectionPrint());
+        }
+        return promptForInt("Please enter User ID: ");
+
     }
 
-    public String printPrettyMoney(Double money) {
-        NumberFormat nf = NumberFormat.getCurrencyInstance();
-        return nf.format(money);
+    public void printTransferDetails(Transfer chosenTransfer) {
+        System.out.println("---------------------------------------------------------------");
+        System.out.println("Transfer Details");
+        System.out.println("---------------------------------------------------------------");
+        System.out.println("Id: " + chosenTransfer.getTransferId());
+        System.out.println("From: " + chosenTransfer.getAccountFromUsername());
+        System.out.println("To: " + chosenTransfer.getAccountToUsername());
+        System.out.println("Type: " + chosenTransfer.getTransferType());
+        System.out.println("Status: " + chosenTransfer.getTransferStatus());
+        System.out.println("Amount: $" + chosenTransfer.getAmount());
     }
 
-    public void transactionApproved(Double amount){
-        System.out.println("\n--------------------");
-        System.out.println("Transaction of [" + printPrettyMoney(amount)+"] approved");
-        System.out.println("--------------------");
+    public void printTransferListHeader (){
+        System.out.println("---------------------------------------------------------------");
+        System.out.println("Transfer List");
+        System.out.println("ID          From/To         Amount");
+        System.out.println("---------------------------------------------------------------");
     }
 
-    public void transactionProcessed(Double amount){
-        System.out.println("\n--------------------");
-        System.out.println("Transaction of [" + printPrettyMoney(amount)+"] processed");
-        System.out.println("--------------------");
+    public void approveRejectOrPending (){
+        System.out.println("---------------------------------------------------------------");
+        System.out.println("1. Approve");
+        System.out.println("2. Reject");
+        System.out.println("0. Don't approve or reject (Do nothing)");
+        System.out.println("---------------------------------------------------------------");
     }
-
 }

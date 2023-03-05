@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
 
 
 import java.util.List;
@@ -9,13 +10,14 @@ import java.util.List;
 // These methods provide functionality for interacting with transfer data stored in a database.
 public interface TransferDao {
 
-    boolean create(Transfer transfer, int transferType, int transferStatus);
+    int sendRequestBucks(Transfer transfer);
 
-    List<Transfer> listBySender(Long senderId);
+    void updateSenderAccountBalance(int transferId, Transfer transfer);
 
-    Transfer getById(Long transferId);
+    void updateReceiverAccountBalance(int transferId, Transfer transfer);
 
-    List<Transfer> listAllTransfers();
+    void updateTransfer (Transfer transfer);
 
-    boolean update(Transfer transfer);
+    List<Transfer> userTransfers(User user);
+
 }

@@ -1,12 +1,12 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,70 +16,99 @@ import java.util.List;
 public class JdbcTransferDao implements TransferDao {
 
     private JdbcTemplate jdbcTemplate;
-
-    public JdbcTransferDao(JdbcTemplate jdbcTemplate) {
+    public JdbcTransferDao(JdbcTemplate jdbcTemplate){
         this.jdbcTemplate = jdbcTemplate;
     }
 
+
     @Override
-    public boolean create(Transfer transfer, int transferType, int transferStatus) {
+    public int sendRequestBucks(Transfer transfer) {
+        if(transfer.getFromUserId() == transfer.getToUserId()) {
+            System.out.println("Error: You can not send money to yourself");
+            return 0;
+        }
+        int newId = 0;
         String sql = "INSERT INTO transfer (transfer_type_id, transfer_status_id, account_from, account_to, amount) " +
-                "values(?, ?, ?, ?, ?);";
-        try {
-            jdbcTemplate.update(sql, transferType, transferStatus, transfer.getFromAccountID(),
-                    transfer.getToAccountID(), transfer.getAmount());
-            return true;
+                "VALUES (?, ?, (SELECT account_id FROM account WHERE user_id = ?), (SELECT account_id FROM account WHERE user_id = ?), ?) RETURNING transfer_id";
+        try{
+            newId = jdbcTemplate.queryForObject(sql, Integer.class, transfer.getTransferTypeId(), transfer.getStatusId(), transfer.getFromUserId(), transfer.getToUserId(), transfer.getAmount());
+
         } catch (DataAccessException e) {
-            return false;
+            e.printStackTrace();
+        }
+        return newId;
+    }
+    @Override
+    public void updateSenderAccountBalance(int transferId, Transfer transfer){
+
+        String sql = "UPDATE account SET balance = (SELECT SUM (balance - transfer.amount) " +
+                "FROM account join Transfer on account.account_id = transfer.account_from Where transfer_id = ?) " +
+                "WHERE user_id = ?";
+        try{
+            jdbcTemplate.update(sql, transferId, transfer.getFromUserId());
+
+        }catch (DataAccessException e) {
+            e.printStackTrace();
         }
     }
+    @Override
+    public void updateReceiverAccountBalance(int transferId, Transfer transfer){
+        String sql = "UPDATE account SET balance = (SELECT SUM (balance + transfer.amount) " +
+                "FROM account join Transfer on account.account_id = transfer.account_to Where transfer_id = ?) " +
+                "WHERE user_id = ?";
+        try {
+            jdbcTemplate.update(sql, transferId, transfer.getToUserId());
 
-    public List<Transfer> listBySender(Long senderId) {
-        List<Transfer> transfers = new ArrayList<>();
-        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount " +
-                "FROM transfer WHERE account_from = ?;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, senderId);
-        while(results.next()) {
-            Transfer transfer = mapRowToTransfer(results);
-            transfers.add(transfer);
+        }catch (DataAccessException e) {
+            e.printStackTrace();
         }
+    }
+    @Override
+    public List<Transfer> userTransfers(User user){
+
+        List<Transfer> transfers = new ArrayList<>();
+        String sql = "SELECT transfer_id, transfer.transfer_type_id,  transfer_type_desc, transfer.transfer_status_id," +
+                " z.username AS to_username, y.username AS from_username," +
+                "f.user_id AS from_user_id, transfer_status_desc, x.user_id AS to_user_id, amount " +
+                "FROM transfer JOIN transfer_type ON transfer_type.transfer_type_id = transfer.transfer_type_id " +
+                "JOIN transfer_status ON transfer_status.transfer_status_id = transfer.transfer_status_id " +
+                "JOIN account x ON x.account_id = transfer.account_to " +
+                "JOIN account f ON f.account_id = transfer.account_from " +
+                "JOIN tenmo_user z ON z.user_id = x.user_id " +
+                "JOIN tenmo_user y ON y.user_id = f.user_id " +
+                "WHERE f.user_id = ? OR x.user_id = ?";
+        try {
+            SqlRowSet rowSet =  jdbcTemplate.queryForRowSet(sql, user.getUserId(), user.getUserId());
+
+            while(rowSet.next()){
+                transfers.add(mapRowToTransferWithStatusAndType(rowSet));
+            }
+
+        }catch (DataAccessException e) {
+            e.printStackTrace();
+        }
+
         return transfers;
     }
 
-    public Transfer getById(Long transferId) {
-        String sql = "SELECT * FROM transfer WHERE transfer_id = ?;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, transferId);
-        return mapRowToTransfer(results);
+    @Override
+    public void updateTransfer (Transfer transfer) {
+        String sql = "UPDATE transfer SET transfer_status_id = ? WHERE transfer_id = ?";
+        jdbcTemplate.update(sql, transfer.getStatusId(), transfer.getTransferId());
     }
 
-    public boolean update(Transfer transfer) {
-        String sql = "UPDATE transfer SET transfer_status_id = ? WHERE transfer_id = ?;";
-        try {
-            jdbcTemplate.update(sql, transfer.getTransferStatus(), transfer.getId());
-        } catch (DataAccessException e) {
-            return false;
-        }
-        return true;
-    }
-
-    public List<Transfer> listAllTransfers() {
-        List<Transfer> transferList = new ArrayList<>();
-        String sql = "SELECT * FROM transfer";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
-        while(results.next()) {
-            transferList.add(mapRowToTransfer(results));
-        }
-        return transferList;
-    }
-
-    private Transfer mapRowToTransfer(SqlRowSet rowSet) {
+    private Transfer mapRowToTransferWithStatusAndType(SqlRowSet rs) {
         Transfer transfer = new Transfer();
-        transfer.setId(rowSet.getLong("transfer_id"));
-        transfer.setFromAccountID(rowSet.getLong("account_from"));
-        transfer.setToAccountID(rowSet.getLong("account_to"));
-        transfer.setAmount(rowSet.getBigDecimal("amount"));
-        transfer.setTransferType(rowSet.getInt("transfer_type_id"));
-        transfer.setTransferStatus(rowSet.getInt("transfer_status_id"));
+        transfer.setTransferId(rs.getInt("transfer_id"));
+        transfer.setTransferTypeId(rs.getInt("transfer_type_id"));
+        transfer.setTransferType(rs.getString("transfer_type_desc"));
+        transfer.setStatusId(rs.getInt("transfer_status_id"));
+        transfer.setTransferStatus(rs.getString("transfer_status_desc"));
+        transfer.setFromUserId(rs.getInt("from_user_id"));
+        transfer.setToUserId(rs.getInt("to_user_id"));
+        transfer.setAccountFromUsername(rs.getString("from_username"));
+        transfer.setAccountToUsername(rs.getString("to_username"));
+        transfer.setAmount(rs.getBigDecimal("amount"));
         return transfer;
     }
 }

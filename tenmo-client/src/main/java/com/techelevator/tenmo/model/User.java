@@ -1,42 +1,62 @@
 package com.techelevator.tenmo.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.math.BigDecimal;
 import java.util.Objects;
 
 public class User {
 
-    private int id;
+    private int userId;
+    @JsonProperty("username")
     private String username;
+    @JsonProperty("balance")
+    private BigDecimal accountBalance;
+
+
+    public User() {
+    }
+
+    public User(int userId, String username, int accountId, BigDecimal accountBalance) {
+        this.userId = userId;
+        this.username = username;
+        this.accountBalance = accountBalance;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+
+    public BigDecimal getAccountBalance() {return accountBalance;}
+
+    public void setAccountBalance(BigDecimal accountBalance) {
+        this.accountBalance = accountBalance;
+    }
 
     public int getId() {
-        return id;
+        return userId;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
 
     @Override
     public boolean equals(Object other) {
         if (other instanceof User) {
             User otherUser = (User) other;
-            return otherUser.getId() == id
+            return otherUser.getId() == userId
                     && otherUser.getUsername().equals(username);
         } else {
             return false;
         }
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, username);
+    public String selectionPrint () {
+        return userId + " " + username;
     }
 }
 

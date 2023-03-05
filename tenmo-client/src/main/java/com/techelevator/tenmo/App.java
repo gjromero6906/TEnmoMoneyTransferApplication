@@ -1,9 +1,9 @@
 package com.techelevator.tenmo;
 
-import com.techelevator.tenmo.model.Account;
 import com.techelevator.tenmo.model.AuthenticatedUser;
 
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.model.UserCredentials;
 import com.techelevator.tenmo.services.AccountService;
 import com.techelevator.tenmo.services.AuthenticationService;
@@ -12,7 +12,6 @@ import com.techelevator.tenmo.services.ConsoleService;
 import com.techelevator.tenmo.services.TransferService;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 public class App {
@@ -21,16 +20,15 @@ public class App {
 
     private final ConsoleService consoleService = new ConsoleService();
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
-    private AccountService accountService = new AccountService();
-    private TransferService transferService = new TransferService();
-    public final int STATUS_APPROVED = 2;
-    public final int STATUS_PENDING = 1;
-    public final int STATUS_REJECTED = 3;
-    public final int TRANSFER_SEND = 2;
-    public final int TRANSFER_REQUEST = 1;
-
+    private final static int PENDING_STATUS = 1;
+    private final static int APPROVED_STATUS = 2;
+    private final static int REJECTED_STATUS = 3;
+    private final static int TYPE_SEND = 2;
+    private final static int TYPE_REQUEST = 1;
     private AuthenticatedUser currentUser;
-    public Account currentUserAccount;
+    private AccountService accountService = new AccountService(API_BASE_URL);
+    private TransferService transferService = new TransferService(API_BASE_URL);
+
 
     public static void main(String[] args) {
         App app = new App();
@@ -74,16 +72,14 @@ public class App {
     private void handleLogin() {
         UserCredentials credentials = consoleService.promptForCredentials();
         currentUser = authenticationService.login(credentials);
+
         if (currentUser == null) {
             consoleService.printErrorMessage();
-        } else {
-            accountService.setAuthToken(currentUser.getToken());
-            transferService.setAuthToken(currentUser.getToken());
-            currentUserAccount = accountService.get((long) (currentUser.getUser().getId() + 1000));
         }
     }
 
     private void mainMenu() {
+
         int menuSelection = -1;
         while (menuSelection != 0) {
             consoleService.printMainMenu();
@@ -106,240 +102,169 @@ public class App {
             consoleService.pause();
         }
     }
-    // displays the current user's balance by sending a GET request to retrieve the BankAccount object based on the user's ID.
+
     private void viewCurrentBalance() {
-        System.out.println("Your current balance is: $" +
-               currentUserAccount.getBalance());
+        setAuthToken();
+        accountService.setCurrentUser(currentUser.getUser());
+        System.out.println(accountService.getAccountBalance());
     }
 
     private void viewTransferHistory() {
-        List<Transfer> transferList = transferService.listTransfers();
-
-        for (Transfer transfer : transferList) {
-            if (transfer.getToAccountID().equals(currentUserAccount.getId()) ||
-                    transfer.getFromAccountID().equals(currentUserAccount.getId())) {
-
-                String fromToUser;
-                if (currentUserAccount.getId().equals(transfer.getToAccountID())) {
-                    fromToUser = "From User: " +
-                            accountService.get(transfer.getFromAccountID()).getUsername();
+        setAuthToken();
+        User activeUser = setActiveUser();
+        List<Transfer> transfers = List.of(transferService.userTransfers(activeUser));
+        consoleService.printTransferListHeader();
+        for (Transfer transfer : transfers) {
+            if (transfer.getFromUserId() == activeUser.getId()) {
+                List<User> users = List.of(accountService.getUsers());
+                User receivingUser = users.stream().filter(user -> user.getId() == transfer.getToUserId()).findAny().orElse(null);
+                System.out.println(transfer.sendPrint(receivingUser.getUsername()));
+            } else if (transfer.getToUserId() == activeUser.getId()) {
+                List<User> users = List.of(accountService.getUsers());
+                User sendingUser = users.stream().filter(user -> user.getId() == transfer.getFromUserId()).findAny().orElse(null);
+                System.out.println(transfer.receivePrint(sendingUser.getUsername()));
+            }
+        }
+        boolean running = true;
+        while (running) {
+            int choice = consoleService.promptForInt("Please enter transfer ID to view details or (0) to cancel: ");
+            if (choice == 0) {
+                running = false;
+            } else {
+                Transfer chosenTransfer = transfers.stream().filter(transfer -> transfer.getTransferId() == choice).findAny().orElse(null);
+                if (chosenTransfer != null) {
+                    consoleService.printTransferDetails(chosenTransfer);
+                    running = false;
                 } else {
-                    fromToUser = "To User: " +
-                            accountService.get(transfer.getToAccountID()).getUsername();
+                    System.out.println("Please enter a Transfer ID from the list.");
                 }
-
-                System.out.println("Transfer ID: " + transfer.getId() +
-                        " | Amount: $" + transfer.getAmount() +
-                        " | " + fromToUser);
-
             }
         }
 
-        long transferId = consoleService.promptForInt("Enter a transfer ID to see more details, or enter 0 to exit: ");
-        Transfer currentTransfer = null;
-        //we already have a list for the current user why not use it
-        for (Transfer transfer: transferList){
-            if(transfer.getId() == transferId){
-                currentTransfer = transfer;
-            }
-        }
-        if (currentTransfer != null) {
-            String transferStatus = null;
-            if (currentTransfer.getTransferStatus() == STATUS_PENDING) {
-                transferStatus = "Pending";
-            } else if (currentTransfer.getTransferStatus() == STATUS_APPROVED) {
-                transferStatus = "Approved";
-            } else if (currentTransfer.getTransferStatus() == STATUS_REJECTED) {
-                transferStatus = "Rejected";
-            }
-
-            String transferType = null;
-            if (currentTransfer.getTransferType() == TRANSFER_REQUEST) {
-                transferType = "Request";
-            } else if (currentTransfer.getTransferType() == TRANSFER_SEND) {
-                transferType = "Transfer";
-            }
-
-            Account recipient = accountService.get(currentTransfer.getToAccountID());
-            Account sender = accountService.get(currentTransfer.getFromAccountID());
-
-            System.out.println("ID: " + currentTransfer.getId() + " | Amount: $" + currentTransfer.getAmount() + " | Recipient: " + recipient.getUsername() + " | Sender: " + sender.getUsername() + " | Status: " + transferStatus  + " | Type: " + transferType);
-
-        } else {
-            System.out.println("Invalid transfer ID.");
-        }
     }
 
     private void viewPendingRequests() {
-        // TODO Auto-generated method stub
-        List<Transfer> transferList = transferService.listTransfers();
+        setAuthToken();
+        User activeUser = setActiveUser();
+        List<Transfer> transfers = List.of(transferService.userTransfers(activeUser));
 
-        for (Transfer transfer : transferList) {
-            if (transfer.getTransferStatus() == STATUS_PENDING && transfer.getFromAccountID().equals(currentUserAccount.getId())) {
-                Account requester = accountService.get(transfer.getToAccountID());
-                System.out.println("Request ID: " + transfer.getId() + " | Requested Amount: $" + transfer.getAmount() + " | User: " + requester.getUsername());
+        for (Transfer transfer : transfers) {
+            if (transfer.getStatusId() == PENDING_STATUS && transfer.getToUserId() != activeUser.getId()) {
+                System.out.println(transfer.sendPrint(transfer.getAccountToUsername()));
             }
         }
-
-        int selection = consoleService.promptForInt("Enter 1 to reject a request, 2 to approve a request, or 0 to exit: ");
-
-        while(selection != 0) {
-            if (selection == 1) {
-
-                long transferId = consoleService.promptForInt("Enter the ID of the request to reject: ");
-                Transfer currentTransfer = null;
-                for (Transfer transfer: transferList){
-                    if(transfer.getId() == transferId){
-                        currentTransfer = transfer;
-                    }
-                }
-
-                if (currentTransfer != null) {
-                    currentTransfer.setTransferStatus(STATUS_REJECTED);
-                    transferService.update(currentTransfer);
-                    System.out.println("Request rejected.");
-                } else {
-                    System.out.println("Invalid request ID.");
-                }
-                selection=0;
-                mainMenu();
-
-            } else if (selection == 2) {
-
-                long transferId = consoleService.promptForInt("Enter the ID of the request to reject: ");
-                Transfer currentTransfer = null;
-                for (Transfer transfer: transferList){
-                    if(transfer.getId() == transferId){
-                        currentTransfer = transfer;
-                    }
-                }
-
-                if (currentTransfer != null) {
-                    Account receiver = accountService.get(currentTransfer.getToAccountID());
-                    Account sender = accountService.get(currentTransfer.getFromAccountID());
-
-                    if (sender.getBalance().compareTo(currentTransfer.getAmount()) >= 0) {
-
-                        sender.setBalance(sender.getBalance().subtract(currentTransfer.getAmount()));
-                        accountService.update(sender);
-
-                        receiver.setBalance(receiver.getBalance().add(currentTransfer.getAmount()));
-                        accountService.update(receiver);
-                        System.out.println("Request approved. Remaining balance: $" + sender.getBalance());
-
-                        currentTransfer.setTransferStatus(STATUS_APPROVED);
-                        transferService.update(currentTransfer);
+        int choice = consoleService.promptForInt("Please enter transfer ID to approve/reject (Enter 0 to cancel): ");
+        Transfer chosenTransfer = transfers.stream().filter(transfer -> transfer.getTransferId() == choice).findAny().orElse(null);
+        if (chosenTransfer != null) {
+            consoleService.approveRejectOrPending();
+            int option = consoleService.promptForInt("Please choose an option: ");
+            switch (option) {
+                case 1:
+                    if (chosenTransfer.getAmount().compareTo(activeUser.getAccountBalance()) <= 0) {
+                        chosenTransfer.setStatusId(APPROVED_STATUS);
+                        transferService.updateTransfer(chosenTransfer);
 
                     } else {
-                        System.out.println("Insufficient funds to approve the request.");
+                        System.out.println("Sorry, the amount requested is larger than your current balance.");
+
                     }
+                    break;
+                case 2:
+                    chosenTransfer.setStatusId(REJECTED_STATUS);
+                    transferService.updateTransfer(chosenTransfer);
 
-                } else {
-                    System.out.println("Invalid request ID.");
-                }
-                selection=0;
-                mainMenu();
-
-            } else {
-                selection = consoleService.promptForInt("Enter 1 to reject a request, 2 to approve a request, or 0 to exit: ");
+                    break;
+                case 0:
+                    break;
             }
-        }
-        if (selection == 0) {
-            mainMenu();
         }
     }
 
+
     private void sendBucks() {
-        // TODO Auto-generated method stub
-        List<String> accountList = accountService.listAccounts();
+        setAuthToken();
+        User activeUser = setActiveUser();
+        List<User> users = List.of(accountService.getUsers());
+        int choice = chooseFromAvailableUsers();
+        Transfer transfer = sendBucksTransfer(activeUser);
+        User receivingUser = users.stream().filter(user -> user.getId() == choice).findAny().orElse(null);
 
-        for (String account : accountList) {
-            if (!account.contains("Username: " + currentUser.getUser().getUsername())) {
-                System.out.println(account);
-            }
-        }
+        receivingUser(receivingUser, activeUser, transfer);
+    }
 
-        long recipientId = consoleService.promptForInt("Enter the ID of the account you want to transfer to, or 0 to exit: ");
 
-        if (recipientId == currentUserAccount.getId()) {
-            recipientId = consoleService.promptForInt("You cannot send money to yourself. Please enter the ID of the user you want to transfer to: ");
-        } else if (recipientId != 0) {
-
-            Account sender = accountService.get(currentUserAccount.getId());
-            Account receiver = accountService.get(recipientId);
-
-            if (receiver != null) {
-
-                BigDecimal amount = consoleService.promptForBigDecimal("Enter the amount you would like to transfer: ");
-
-                if (amount.signum() == 1 && sender.getBalance().compareTo(amount) >= 0) {
-
-                    sender.setBalance(sender.getBalance().subtract(amount));
-                    accountService.update(sender);
-
-                    receiver.setBalance(receiver.getBalance().add(amount));
-                    accountService.update(receiver);
-
-                    System.out.println("$" + amount + " sent to user " + receiver.getUsername() + ". New balance: " + sender.getBalance());
-
-                    Transfer transfer = new Transfer(amount, sender.getId(), receiver.getId(), STATUS_APPROVED, TRANSFER_SEND);
-                    transferService.send(transfer);
-
-                } else if (amount.signum() == 0 || amount.signum() == -1) {
-                    System.out.println("You cannot $0 or a negative amount.");
+    private void receivingUser(User receivingUser, User sendingUser, Transfer transfer) {
+        if (receivingUser != null) {
+            transfer.setToUserId(receivingUser.getId());
+            boolean running = true;
+            while (running) {
+                transfer.setAmount(consoleService.promptForBigDecimal("Please enter in a dollar amount: "));
+                if (sendingUser.getAccountBalance().compareTo(transfer.getAmount()) >= 0 && transfer.getAmount().compareTo(BigDecimal.ZERO) > 0) {
+                    transferService.sendBucks(transfer);
+                    running = false;
+                } else if (transfer.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+                    System.out.println("Please enter a valid number above zero.");
                 } else {
-                    System.out.println("You cannot send more money than you have in your account.");
+                    System.out.println("Insufficient funds for entered amount\n");
                 }
-
-            } else {
-                System.out.println("Invalid Account ID.");
             }
-
         } else {
-            mainMenu();
+            System.out.println("Please enter a valid User ID");
+            sendBucks();
         }
+    }
 
+    private Transfer sendBucksTransfer(User activeUser) {
+        Transfer transfer = new Transfer();
+        transfer.setTransferTypeId(TYPE_SEND);
+        transfer.setStatusId(APPROVED_STATUS);
+        transfer.setFromUserId(activeUser.getId());
+        return transfer;
+    }
+
+    private Transfer requestBucksTransfer(User selectedUser) {
+        Transfer transfer = new Transfer();
+        transfer.setTransferTypeId(TYPE_REQUEST);
+        transfer.setStatusId(PENDING_STATUS);
+        transfer.setToUserId(setActiveUser().getId());
+        transfer.setFromUserId(selectedUser.getId());
+        boolean running = true;
+        while (running) {
+            BigDecimal amount = consoleService.promptForBigDecimal("Please enter in a dollar amount: ");
+            if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+                System.out.println("Please enter a dollar amount above $0.");
+            } else {
+                transfer.setAmount(amount);
+                running = false;
+            }
+        }
+        return transfer;
     }
 
     private void requestBucks() {
-        // TODO Auto-generated method stub
-        List<String> accountList = accountService.listAccounts();
-
-        for (String account : accountList) {
-            if (!account.contains("Username: " + currentUser.getUser().getUsername())) {
-                System.out.println(account);
-            }
-        }
-
-        long requesteeId = (long)consoleService.promptForInt("Enter the ID of the user you want to request from, or 0 to exit: ");
-
-        if (requesteeId == currentUserAccount.getId()) {
-            requesteeId = consoleService.promptForInt("You cannot request money from yourself. Please enter the ID of the user you want to request money from: ");
-        } else if (requesteeId != 0) {
-
-            Account requester = accountService.get(currentUserAccount.getId());
-            Account requestee = accountService.get(requesteeId);
-
-            if (requestee != null) {
-
-                BigDecimal amount = consoleService.promptForBigDecimal("Enter the amount you would like to request: ");
-                if (amount.signum() == 1) {
-
-                    System.out.println("$" + amount + " requested from user " + requestee.getUsername() + ". Approval pending.");
-
-                    Transfer transfer = new Transfer(amount, requestee.getId(), requester.getId(), STATUS_PENDING, TRANSFER_REQUEST);
-                    transferService.request(transfer);
-
-                } else {
-                    System.out.println("Please request an amount of money greater than $0.");
-                }
-
-            } else {
-                System.out.println("Invalid Account ID.");
-            }
-
+        setAuthToken();
+        List<User> users = List.of(accountService.getUsers());
+        int choice = chooseFromAvailableUsers();
+        User selectedUser = users.stream().filter(user -> user.getId() == choice).findAny().orElse(null);
+        if (selectedUser != null) {
+            Transfer transfer = requestBucksTransfer(selectedUser);
+            transferService.requestBucks(transfer);
         } else {
-            mainMenu();
+            System.out.println("Invalid UserId entered");
+            requestBucks();
         }
+    }
+
+    public int chooseFromAvailableUsers() {
+        return consoleService.userIdForSendRequestMoney(accountService.getUsers());
+    }
+
+    private void setAuthToken() {
+        accountService.setAuthToken(currentUser);
+        transferService.setAuthToken(currentUser);
+    }
+
+    private User setActiveUser() {
+        return accountService.getUser(currentUser.getUser().getUsername());
     }
 }
