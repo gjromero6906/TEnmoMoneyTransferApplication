@@ -109,7 +109,7 @@ public class App {
     // displays the current user's balance by sending a GET request to retrieve the BankAccount object based on the user's ID.
     private void viewCurrentBalance() {
         System.out.println("Your current balance is: $" +
-                accountService.get(currentUserAccount.getId()).getBalance());
+               currentUserAccount.getBalance());
     }
 
     private void viewTransferHistory() {
@@ -169,38 +169,6 @@ public class App {
             System.out.println("Invalid transfer ID.");
         }
     }
-    //wanted to save code in  case anything went wrong
-       /* if(transferId != 0) {
-            Transfer transfer = transferService.getById(transferId);
-            if (transfer != null) {
-                String transferStatus = null;
-                if (transfer.getTransferStatus() == STATUS_PENDING) {
-                    transferStatus = "Pending";
-                } else if (transfer.getTransferStatus() == STATUS_APPROVED) {
-                    transferStatus = "Approved";
-                } else if (transfer.getTransferStatus() == STATUS_REJECTED) {
-                    transferStatus = "Rejected";
-                }
-
-                String transferType = null;
-                if (transfer.getTransferType() == TRANSFER_REQUEST) {
-                    transferType = "Request";
-                } else if (transfer.getTransferType() == TRANSFER_SEND) {
-                    transferType = "Transfer";
-                }
-
-                Account recipient = accountService.get(transfer.getToAccountID());
-                Account sender = accountService.get(transfer.getFromAccountID());
-
-                System.out.println("ID: " + transfer.getId() + " | Amount: $" + transfer.getAmount() + " | Recipient: " + recipient.getUsername() + " | Sender: " + sender.getUsername() + " | Status: " + transferStatus  + " | Type: " + transferType);
-
-            } else {
-                System.out.println("Invalid transfer ID.");
-            }
-        } else {
-            mainMenu();
-        }*/
-   // }
 
     private void viewPendingRequests() {
         // TODO Auto-generated method stub
