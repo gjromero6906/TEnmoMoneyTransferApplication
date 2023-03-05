@@ -1,4 +1,4 @@
-package com.techelevator;
+package com.techelevator.dao;
 
 import static org.junit.Assert.assertEquals;
 
